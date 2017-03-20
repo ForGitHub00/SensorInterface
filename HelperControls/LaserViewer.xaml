@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="HelperControls.LaserViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:oxy="clr-namespace:OxyPlot.Wpf;assembly=OxyPlot.Wpf"
+             xmlns:local="clr-namespace:HelperControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300" Loaded="UserControl_Loaded" MinHeight="500" MinWidth="500">
+    <Grid x:Name="grid" Background="#FFFFAFAF">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="100"/>
+        </Grid.RowDefinitions>
+        <oxy:PlotView Name="v_laser" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Grid.Row="0"></oxy:PlotView>
+    </Grid>
+</UserControl>

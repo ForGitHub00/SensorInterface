@@ -1,0 +1,29 @@
+﻿<Window x:Class="WPF_Interface_App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:contls="clr-namespace:HelperControls;assembly=HelperControls"
+        xmlns:local="clr-namespace:WPF_Interface_App"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="150"/>
+        </Grid.RowDefinitions>
+        <ListBox Name="lb" Background="#FF4B4040" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" MinWidth="50" MinHeight="50">
+        </ListBox>
+        <StackPanel Grid.Row="1">
+            <Slider Name="sld_path" Maximum="756" Minimum="0"></Slider>
+            <TextBlock Name="tb_sld_path" Text="{Binding ElementName=sld_path, Path=Value}"></TextBlock>
+
+            <Slider Name="sld_file" Maximum="756" Minimum="0" ValueChanged="sld_file_ValueChanged"></Slider>
+            <TextBlock Name="tb_sld_file" Text="{Binding ElementName=sld_file, Path=Value}"></TextBlock>
+
+            <Slider Name="sld" Maximum="30" Minimum="2"></Slider>
+            <TextBlock Name="tb_sld" Text="{Binding ElementName=sld, Path=Value}"></TextBlock>
+        </StackPanel>
+        <!--<contls:LaserViewer Name="ttt"></contls:LaserViewer>-->
+    </Grid>
+</Window>
