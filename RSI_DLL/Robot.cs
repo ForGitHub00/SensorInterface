@@ -12,11 +12,11 @@ namespace RSI_DLL
     public class Robot {
         private int _port;
         private UdpClient server;
-        public delegate void CorrectionDelegate(string strRecive,ref string strSend);
+        public delegate string CorrectionDelegate(string strRecive,string strSend);
         public CorrectionDelegate Correction;
         private bool work;
-        private void _defaultDelegate(string strRecive,ref string strSend) {
-            return;
+        private string _defaultDelegate(string strRecive, string strSend) {
+            return String.Empty;
         }
         public Robot(int port) {
             _port = port;          
@@ -54,8 +54,9 @@ namespace RSI_DLL
 
                         string strSend;
                         strSend = SendXML.InnerXml;
-                        //strSend = mirrorIPOC(strReceive, strSend);
-
+                        
+                        strSend = mirrorIPOC(strReceive, strSend);
+                        strSend = Correction(strReceive, strSend);
 
                         byte[] msg = System.Text.Encoding.ASCII.GetBytes(strSend);
                         server.Send(msg, msg.Length, client);
@@ -64,16 +65,33 @@ namespace RSI_DLL
                     strReceive = null;
 
 
-                    string st = "dasd";
-                    Correction("ReciveData", ref st);
-                    Console.WriteLine(st);
-                    Thread.Sleep(1000);
+                    
+                    //st = Correction("ReciveData", st);
+                    //Console.WriteLine(st);
+                    //Thread.Sleep(1000);
                     
                 }
 
             } catch (Exception ex) {
                 Console.WriteLine("Возникло исключение: " + ex.ToString() + "\n  " + ex.Message);
             }
+        }
+
+        private string mirrorIPOC(string receive, string send) {
+            // separate IPO counter as string
+            int startdummy = receive.IndexOf("<IPOC>") + 6;
+            int stopdummy = receive.IndexOf("</IPOC>");
+            string Ipocount = receive.Substring(startdummy, stopdummy - startdummy);
+
+            // find the insert position		
+            startdummy = send.IndexOf("<IPOC>") + 6;
+            stopdummy = send.IndexOf("</IPOC>");
+
+            // remove the old value an insert the actualy value
+            send = send.Remove(startdummy, stopdummy - startdummy);
+            send = send.Insert(startdummy, Ipocount);
+
+            return send;
         }
 
         public void Stoplistening() {

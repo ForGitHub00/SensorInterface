@@ -83,6 +83,9 @@
     <Compile Include="LaserViewer.xaml.cs">
       <DependentUpon>LaserViewer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="LViewer.xaml.cs">
+      <DependentUpon>LViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Map\MapModel.cs" />
     <Compile Include="Map\MapViewModel.cs" />
     <Compile Include="Map\MapWindow.xaml.cs">
@@ -113,6 +116,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="LaserViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

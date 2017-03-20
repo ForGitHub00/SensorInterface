@@ -20,7 +20,7 @@ namespace HelperControls {
     /// <summary>
     /// Логика взаимодействия для LaserViewer.xaml
     /// </summary>
-    public partial class LaserViewer : UserControl {
+    public partial class LaserViewer : UserControl{
         public LaserViewer() {
             InitializeComponent();
         }
@@ -52,7 +52,7 @@ namespace HelperControls {
             if (Data.Count == 0) {
                 return;
             }
-            var series1 = new LineSeries { Title = "Profile", MarkerType = MarkerType.Diamond, MarkerStrokeThickness = 0.5 };
+            var series1 = new LineSeries { Title = "Profile", MarkerType = MarkerType.Circle, MarkerStrokeThickness = 0.5 };
             for (int i = 0; i < Data.Count; i++) {
                 series1.Points.Add(new DataPoint(Data[i].X, Data[i].Z));
                 series1.Points.Add(new DataPoint(Data[i].X, Data[i].Z));

@@ -10,20 +10,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition Height="150"/>
         </Grid.RowDefinitions>
-        <ListBox Name="lb" Background="#FF4B4040" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" MinWidth="50" MinHeight="50">
-        </ListBox>
-        <StackPanel Grid.Row="1">
-            <Slider Name="sld_path" Maximum="756" Minimum="0"></Slider>
-            <TextBlock Name="tb_sld_path" Text="{Binding ElementName=sld_path, Path=Value}"></TextBlock>
-
-            <Slider Name="sld_file" Maximum="756" Minimum="0" ValueChanged="sld_file_ValueChanged"></Slider>
-            <TextBlock Name="tb_sld_file" Text="{Binding ElementName=sld_file, Path=Value}"></TextBlock>
-
-            <Slider Name="sld" Maximum="30" Minimum="2"></Slider>
-            <TextBlock Name="tb_sld" Text="{Binding ElementName=sld, Path=Value}"></TextBlock>
-        </StackPanel>
-        <!--<contls:LaserViewer Name="ttt"></contls:LaserViewer>-->
+        <contls:LViewer Name="LV"></contls:LViewer>
     </Grid>
 </Window>

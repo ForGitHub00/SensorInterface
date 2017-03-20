@@ -29,19 +29,15 @@ namespace HelperControls {
         public ObservableCollection<RPointCoordinates> LaserMap;
 
         public void AddRobotPoint(RPoint p) {
-            if (RobotMap != null) {
                 RDataXZ.Add(new DataPoint(p.X, p.Z));
                 RDataXY.Add(new DataPoint(p.X, p.Y));
                 RDataXA.Add(new DataPoint(p.X, p.A));
                 RDataXB.Add(new DataPoint(p.X, p.B));
                 RDataXC.Add(new DataPoint(p.X, p.C));
-            }
         }
-        public void AddLaserPoint(RPointCoordinates p) {
-            if (LaserMap != null) {
+        public void AddLaserPoint(RPoint p) {
                 LDataXZ.Add(new DataPoint(p.X, p.Z));
                 LDataXY.Add(new DataPoint(p.X, p.Y));
-            }
         }
 
         public ObservableCollection<DataPoint> RDataXZ {
@@ -49,45 +45,45 @@ namespace HelperControls {
             set { SetValue(RDataXZProperty, value); }
         }
         public static readonly DependencyProperty RDataXZProperty =
-            DependencyProperty.Register("RDataXZ", typeof(ObservableCollection<DataPoint>), typeof(MapViewModel), new PropertyMetadata(new ObservableCollection<DataPoint>()));
+            DependencyProperty.Register("RDataXZ", typeof(ObservableCollection<DataPoint>), typeof(MapModel), new PropertyMetadata(new ObservableCollection<DataPoint>()));
         public ObservableCollection<DataPoint> LDataXZ {
             get { return (ObservableCollection<DataPoint>)GetValue(LDataXZProperty); }
             set { SetValue(LDataXZProperty, value); }
         }
         public static readonly DependencyProperty LDataXZProperty =
-            DependencyProperty.Register("LDataXZ", typeof(ObservableCollection<DataPoint>), typeof(MapViewModel), new PropertyMetadata(new ObservableCollection<DataPoint>()));
+            DependencyProperty.Register("LDataXZ", typeof(ObservableCollection<DataPoint>), typeof(MapModel), new PropertyMetadata(new ObservableCollection<DataPoint>()));
 
         public ObservableCollection<DataPoint> RDataXY {
             get { return (ObservableCollection<DataPoint>)GetValue(RDataXYProperty); }
             set { SetValue(RDataXYProperty, value); }
         }
         public static readonly DependencyProperty RDataXYProperty =
-            DependencyProperty.Register("RDataXY", typeof(ObservableCollection<DataPoint>), typeof(MapViewModel), new PropertyMetadata(new ObservableCollection<DataPoint>()));
+            DependencyProperty.Register("RDataXY", typeof(ObservableCollection<DataPoint>), typeof(MapModel), new PropertyMetadata(new ObservableCollection<DataPoint>()));
         public ObservableCollection<DataPoint> LDataXY {
             get { return (ObservableCollection<DataPoint>)GetValue(LDataXYProperty); }
             set { SetValue(LDataXYProperty, value); }
         }
         public static readonly DependencyProperty LDataXYProperty =
-            DependencyProperty.Register("LDataXY", typeof(ObservableCollection<DataPoint>), typeof(MapViewModel), new PropertyMetadata(new ObservableCollection<DataPoint>()));
+            DependencyProperty.Register("LDataXY", typeof(ObservableCollection<DataPoint>), typeof(MapModel), new PropertyMetadata(new ObservableCollection<DataPoint>()));
 
         public ObservableCollection<DataPoint> RDataXA {
             get { return (ObservableCollection<DataPoint>)GetValue(RDataXAProperty); }
             set { SetValue(RDataXAProperty, value); }
         }
         public static readonly DependencyProperty RDataXAProperty =
-            DependencyProperty.Register("RDataXA", typeof(ObservableCollection<DataPoint>), typeof(MapViewModel), new PropertyMetadata(new ObservableCollection<DataPoint>()));
+            DependencyProperty.Register("RDataXA", typeof(ObservableCollection<DataPoint>), typeof(MapModel), new PropertyMetadata(new ObservableCollection<DataPoint>()));
         public ObservableCollection<DataPoint> RDataXB {
             get { return (ObservableCollection<DataPoint>)GetValue(RDataXBProperty); }
             set { SetValue(RDataXBProperty, value); }
         }
         public static readonly DependencyProperty RDataXBProperty =
-            DependencyProperty.Register("RDataXB", typeof(ObservableCollection<DataPoint>), typeof(MapViewModel), new PropertyMetadata(new ObservableCollection<DataPoint>()));
+            DependencyProperty.Register("RDataXB", typeof(ObservableCollection<DataPoint>), typeof(MapModel), new PropertyMetadata(new ObservableCollection<DataPoint>()));
         public ObservableCollection<DataPoint> RDataXC {
             get { return (ObservableCollection<DataPoint>)GetValue(RDataXCProperty); }
             set { SetValue(RDataXCProperty, value); }
         }
         public static readonly DependencyProperty RDataXCProperty =
-            DependencyProperty.Register("RDataXC", typeof(ObservableCollection<DataPoint>), typeof(MapViewModel), new PropertyMetadata(new ObservableCollection<DataPoint>()));
+            DependencyProperty.Register("RDataXC", typeof(ObservableCollection<DataPoint>), typeof(MapModel), new PropertyMetadata(new ObservableCollection<DataPoint>()));
 
 
     }
