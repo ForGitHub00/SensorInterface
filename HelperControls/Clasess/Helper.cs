@@ -54,11 +54,20 @@ namespace HelperControls {
     public struct LPoint {
         public double X;
         public double Z;
+        public LPoint(double x = 0, double z = 0) {
+            X = x;
+            Z = z;
+        }
     }
     public struct RPointCoordinates {
         public double X;
         public double Y;
         public double Z;
+        public RPointCoordinates(double x = 0, double y = 0, double z = 0) {
+            X = x;
+            Y = y;
+            Z = z;
+        }
     }
     public struct RPointAngles {
         public double A;
@@ -72,5 +81,13 @@ namespace HelperControls {
         public double A;
         public double B;
         public double C;
+        public RPoint(double x = 0, double y = 0, double z = 0, double a = 0, double b = 0, double c = 0) {
+            X = x;
+            Y = y;
+            Z = z;
+            A = a;
+            B = b;
+            C = c;
+        }
     }
 }

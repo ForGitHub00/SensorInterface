@@ -77,13 +77,13 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Calculate.cs" />
-    <Compile Include="Correction.cs" />
-    <Compile Include="Helper.cs" />
-    <Compile Include="LaserViewer.xaml.cs">
+    <Compile Include="Clasess\Calculate.cs" />
+    <Compile Include="Clasess\Correction.cs" />
+    <Compile Include="Clasess\Helper.cs" />
+    <Compile Include="UserControls\LaserViewer.xaml.cs">
       <DependentUpon>LaserViewer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="LViewer.xaml.cs">
+    <Compile Include="UserControls\LViewer.xaml.cs">
       <DependentUpon>LViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Map\MapModel.cs" />
@@ -91,6 +91,7 @@
     <Compile Include="Map\MapWindow.xaml.cs">
       <DependentUpon>MapWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Clasess\ParserXML.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -104,6 +105,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Clasess\Singleton.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -115,11 +117,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="LaserViewer.xaml">
+    <Page Include="UserControls\LaserViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LViewer.xaml">
+    <Page Include="UserControls\LViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -127,12 +129,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\RSI_DLL\RSI_DLL.csproj">
-      <Project>{81d3ff5d-3d4d-4bfc-a9a0-2d8eff8f641b}</Project>
-      <Name>RSI_DLL</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

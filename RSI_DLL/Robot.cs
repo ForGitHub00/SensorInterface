@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HelperControls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,30 +8,76 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace RSI_DLL
-{
+namespace RSI_DLL {
     public class Robot {
         private int _port;
         private UdpClient server;
-        public delegate string CorrectionDelegate(string strRecive,string strSend);
+        public delegate string CorrectionDelegate(string strRecive, string strSend);
         public CorrectionDelegate Correction;
         private bool work;
+        public Singleton single;
+        private double speed;
+        private double _oneCor;
+
+        int prevIndex = 0;
         private string _defaultDelegate(string strRecive, string strSend) {
-            return String.Empty;
+            double RX = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "X" });
+            double RY = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "Y" });
+            double RZ = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "Z" });
+            double RA = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "A" });
+            double RB = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "B" });
+            double RC = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "C" });
+
+            single.Position = new RPoint(RX, RY, RZ, RA, RB, RC);
+
+            if (single._MAP.Count != 0) {
+                int index = prevIndex;
+                while (index < single._MAP.Count && RX > single._MAP[index].X) {
+                    index++;
+                }
+                prevIndex = index;
+                if (index < single._MAP.Count) {
+                    double sum = Math.Abs(single._MAP[index].X - RX) + Math.Abs(single._MAP[index].Y - RY) + Math.Abs(single._MAP[index].Z - RZ);
+                    double xProc = (single._MAP[index].X - RX) / sum;
+                    double yProc = (single._MAP[index].Y - RY) / sum;
+                    double zProc = (single._MAP[index].Z - RZ) / sum;
+
+
+                    Console.WriteLine(xProc);
+
+
+                    ParserXML.SetValue(ref strSend, "Sen\\RKorr\\X", xProc * _oneCor);
+                    ParserXML.SetValue(ref strSend, "Sen\\RKorr\\Y", yProc * _oneCor);
+                    ParserXML.SetValue(ref strSend, "Sen\\RKorr\\Z", zProc * _oneCor);
+
+                } else {
+                    ParserXML.SetValue(ref strSend, "Sen\\RKorr\\X", _oneCor);
+                }
+            }
+           
+            return strSend;
         }
         public Robot(int port) {
-            _port = port;          
+            _port = port;
             Correction = _defaultDelegate;
+            speed = 0.01;
+            _oneCor = speed * 0.012;
         }
         public Robot(int port, CorrectionDelegate dlgt) {
             _port = port;
             Correction = dlgt;
         }
+
+   
+
         public void StartListening() {
             work = true;
             Thread thrd_listen;
+            single = Singleton.GetInstance();
             thrd_listen = new System.Threading.Thread(new System.Threading.ThreadStart(start));
             thrd_listen.Start();
+
+
         }
         private void start() {
             System.Xml.XmlDocument SendXML = new System.Xml.XmlDocument();  // XmlDocument pattern
@@ -38,6 +85,9 @@ namespace RSI_DLL
             SendXML.Load("ExternalData.xml");
 
             server = new UdpClient(_port);
+
+            Singleton s = Singleton.GetInstance();
+            //Console.WriteLine(s.Name);
 
             try {
                 while (work) {
@@ -48,28 +98,24 @@ namespace RSI_DLL
                     string strReceive = message;
                     //Recive_data = message;
 
+                    // if ((strReceive.LastIndexOf("</Rob>")) == -1) {
                     if ((strReceive.LastIndexOf("</Rob>")) == -1) {
                         continue;
                     } else {
 
                         string strSend;
                         strSend = SendXML.InnerXml;
-                        
-                        strSend = mirrorIPOC(strReceive, strSend);
+
+                        // strSend = mirrorIPOC(strReceive, strSend);
                         strSend = Correction(strReceive, strSend);
 
                         byte[] msg = System.Text.Encoding.ASCII.GetBytes(strSend);
-                        server.Send(msg, msg.Length, client);
+                        // server.Send(msg, msg.Length, client);
                     }
 
                     strReceive = null;
 
 
-                    
-                    //st = Correction("ReciveData", st);
-                    //Console.WriteLine(st);
-                    //Thread.Sleep(1000);
-                    
                 }
 
             } catch (Exception ex) {

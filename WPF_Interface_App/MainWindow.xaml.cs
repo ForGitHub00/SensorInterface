@@ -3,6 +3,7 @@ using LaserDLL;
 using RSI_DLL;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -25,8 +26,9 @@ namespace WPF_Interface_App {
     public partial class MainWindow : Window {
         public MainWindow() {
             InitializeComponent();
+            Start2();
 
-            StartWork();
+            // StartWork();
             #region
 
             //string[] tempMas = Directory.GetDirectories(@"Laser\");
@@ -72,13 +74,93 @@ namespace WPF_Interface_App {
             //
 
             #endregion
-            Viewers = new List<LaserViewer>();
+
+            //Viewers = new List<LaserViewer>();
         }
 
+        #region Data
         public List<LaserViewer> Viewers;
         private int fileCounter = 0;
         MapModel map;
         Correction _Cor;
+        Robot _R;
+        Singleton single;
+        #endregion
+
+        public void Start2() {
+            //Map
+            _initMap();
+
+            single = Singleton.GetInstance();
+            _Cor = new Correction(0.01);
+
+            _R = new Robot(6008);
+            _R.StartListening();
+
+
+            #region Laser Start
+            Thread laser_thrd = new Thread(new ThreadStart(LaserThread2));
+            laser_thrd.Start();
+            void LaserThread()
+            {
+                Random rnd = new Random();
+                Laser.Init();
+                while (true) {
+                    Dispatcher.Invoke(() => {
+                        Laser.GetProfile(out double[] X, out double[] Z);
+                        List<LPoint> data = Helper.GetLaserData(X, Z, true);
+
+
+                        data = Calculate.Laser.Filters.AveragingVerticalPro(data);
+
+
+                        LV.SetData(data);
+                        List<LPoint> points = Calculate.Laser.AngularSeam.FindMasPoint_ZX_Diff(data, 2);
+                        if (points.Count > 1) {
+                            LPoint resultP = new LPoint() {
+                                X = (points[0].X + points[1].X) / 2,
+                                Z = (points[0].Z + points[1].Z) / 2,
+                            };
+                            LV.SetPoint(resultP);
+                            if (single.Position.X != Double.MinValue) {
+                                RPoint findPoint = _Cor.Trans(single.Position, resultP);
+                                map.AddLaserPoint(findPoint);
+                                single._MAP.Add(findPoint);
+                            }
+                        }
+                    });
+                    Thread.Sleep(36);
+                }
+            }
+            void LaserThread2()
+            {
+                Random rnd = new Random();
+                Laser.Init();
+                while (true) {
+                    Dispatcher.Invoke(() => {
+                        Laser.GetProfile(out double[] X, out double[] Z);
+                        List<LPoint> data = Helper.GetLaserData(X, Z, true);
+
+
+                        data = Calculate.Laser.Filters.AveragingVerticalPro(data);
+
+
+                        LV.SetData(data);
+                        List<LPoint> points = Calculate.Laser.AngularSeam.FindMasPoint_ZX_Diff(data, 2);
+                        RPoint findPoint = new RPoint(rnd.Next(1, 1000), rnd.Next(1, 1000), rnd.Next(1, 1000));
+                        map.AddLaserPoint(findPoint);
+                        single._MAP.Add(findPoint);
+                        map.AddRobotPoint(single.Position);
+                    });
+                    Thread.Sleep(36);
+                }
+            }
+            #endregion
+
+
+
+        }
+
 
         private void _initMap() {
             MapWindow mapW = new MapWindow();
@@ -90,18 +172,13 @@ namespace WPF_Interface_App {
             _initMap();
             _Cor = new Correction(0.01);
 
-
-            Robot R = new Robot(6008);
-            R.StartListening();
+            _R = new Robot(6008);
+            _R.StartListening();
             // Laser.Init();
-            R.Correction = cor;
-
-            strREC = "";
-            strSEND = "";
+            _R.Correction = cor;
 
 
-
-            #region
+            #region laserThrd
             Thread laser_thrd = new Thread(new ThreadStart(LaserThrd));
             laser_thrd.Start();
             void LaserThrd()
@@ -124,36 +201,42 @@ namespace WPF_Interface_App {
                                 Z = (points[0].Z + points[1].Z) / 2,
                             };
                             LV.SetPoint(resultP);
-
-                            if (strREC != "") {
-                                map.AddLaserPoint(_Cor.AddPoint(strREC, resultP.X, resultP.Z));
-                                RPoint r = _Cor.Calculate(strREC, strSEND);
-                                map.AddRobotPoint(r);
+                            if (single.Position.X != Double.MinValue) {
+                                RPoint findPoint = _Cor.Trans(single.Position, resultP);
+                                map.AddLaserPoint(findPoint);
+                                single._MAP.Add(findPoint);
                             }
-
                         }
-
-
                     });
-                    Thread.Sleep(12);
+                    Thread.Sleep(36);
                 }
             }
             #endregion
         }
 
-        public string strREC;
-        public string strSEND;
 
         private string cor(string strR, string strS) {
-            strREC = strR;
-            strSEND = strS;
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+
+
+            //Console.WriteLine(strR);
+
+            //strREC = strR;
+            // strSEND = strS;
+
             //RPoint r = _Cor.Calculate(strR, strS);
 
             //Dispatcher.Invoke(() => {
-            //    //RPoint r = _Cor.Calculate(strR, strS);
-            //   // map.AddRobotPoint(r);
-
+            //    //    RPoint r = _Cor.Calculate(strR, strS);
+            //    //    map.AddRobotPoint(r);
+            //    //_R.foo();
             //});
+            //ParserXML.SetValue(ref strS, "Sen\\RKorr\\X", 0.01);
+
+            sw.Stop();
+            //Console.WriteLine(sw.ElapsedMilliseconds);
             return strS;
         }
 

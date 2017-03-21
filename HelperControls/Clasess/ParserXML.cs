@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace RSI_DLL {
+namespace HelperControls {
     public static class ParserXML {
         public static void SetValue(ref string strXML, string[] par, double val) {
             try {

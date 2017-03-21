@@ -1,6 +1,7 @@
 ﻿using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,7 +19,9 @@ namespace HelperControls {
             LaserDraw = laser;
             AngleDraw = angle;
             RobotMap = new ObservableCollection<RPoint>();
-            LaserMap = new ObservableCollection<RPointCoordinates>();
+            LaserMap = new ObservableCollection<RPoint>();
+
+            single = Singleton.GetInstance();
         }
 
         public bool RobotDraw;
@@ -26,18 +29,34 @@ namespace HelperControls {
         public bool AngleDraw;
 
         public ObservableCollection<RPoint> RobotMap;
-        public ObservableCollection<RPointCoordinates> LaserMap;
+        public ObservableCollection<RPoint> LaserMap;
+
+        Singleton single;
 
         public void AddRobotPoint(RPoint p) {
-                RDataXZ.Add(new DataPoint(p.X, p.Z));
-                RDataXY.Add(new DataPoint(p.X, p.Y));
-                RDataXA.Add(new DataPoint(p.X, p.A));
-                RDataXB.Add(new DataPoint(p.X, p.B));
-                RDataXC.Add(new DataPoint(p.X, p.C));
+            RDataXZ.Add(new DataPoint(p.X, p.Z));
+            RDataXY.Add(new DataPoint(p.X, p.Y));
+            RDataXA.Add(new DataPoint(p.X, p.A));
+            RDataXB.Add(new DataPoint(p.X, p.B));
+            RDataXC.Add(new DataPoint(p.X, p.C));
         }
         public void AddLaserPoint(RPoint p) {
-                LDataXZ.Add(new DataPoint(p.X, p.Z));
-                LDataXY.Add(new DataPoint(p.X, p.Y));
+            LDataXZ.Add(new DataPoint(p.X, p.Z));
+            LDataXY.Add(new DataPoint(p.X, p.Y));
+        }
+
+        public void UsredLaser() {
+            List<LPoint> tempData = new List<LPoint>();
+            foreach (var item in LDataXY) {
+                tempData.Add(new LPoint() { X = item.X, Z = item.Y });
+            }
+            tempData = Calculate.Laser.Filters.SortByX(tempData);
+            tempData = Calculate.Laser.Filters.AveragingVerticalPro(tempData);
+
+            LDataXY = new ObservableCollection<DataPoint>();
+            foreach (var item in tempData) {
+                LDataXY.Add(new DataPoint(item.X, item.Z));
+            }
         }
 
         public ObservableCollection<DataPoint> RDataXZ {
