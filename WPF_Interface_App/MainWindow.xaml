@@ -6,11 +6,46 @@
         xmlns:contls="clr-namespace:HelperControls;assembly=HelperControls"
         xmlns:local="clr-namespace:WPF_Interface_App"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow"
+        Height="450"
+        Width="525">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition/>
+            <RowDefinition Height="100" />
+            <RowDefinition />
         </Grid.RowDefinitions>
-        <contls:LViewer Name="LV"></contls:LViewer>
+        <StackPanel>
+            <Button Content="Stop RSI_MOVECORR"
+                    Click="Button_Click"></Button>
+            <StackPanel>
+                <RadioButton Name="rb_t1"
+                             Content="Type1 and Type2"
+                             IsChecked="True"></RadioButton>
+                <RadioButton Name="rb_t2"
+                             Content="Type3 2point"></RadioButton>
+                <RadioButton Name="rb_t3"
+                             Content="Type3 1point"></RadioButton>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <CheckBox Name="cb_filter"
+                          IsChecked="True"
+                          Margin="5">Filter</CheckBox>
+                <Label>VStep:</Label>
+                <TextBox Margin="5"
+                         Name="tb_vstep">2</TextBox>
+                <Label>HStep:</Label>
+                <TextBox Margin="5"
+                         Name="tb_hstep">100</TextBox>
+                <Label>Points:</Label>
+                <TextBox Margin="5"
+                         Name="tb_points">6</TextBox>
+                <CheckBox Name="cb_everyPoint"
+                    Margin="5">Every Point</CheckBox>
+            </StackPanel>
+
+        </StackPanel>
+
+        <contls:LViewer Grid.Row="1"
+                        Name="LV"></contls:LViewer>
     </Grid>
 </Window>

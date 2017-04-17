@@ -28,6 +28,8 @@ namespace WPF_Interface_App {
             InitializeComponent();
             Start2();
 
+
+            
             // StartWork();
             #region
 
@@ -99,6 +101,7 @@ namespace WPF_Interface_App {
 
 
             #region Laser Start
+            /*
             Thread laser_thrd = new Thread(new ThreadStart(LaserThread2));
             laser_thrd.Start();
             void LaserThread()
@@ -111,21 +114,32 @@ namespace WPF_Interface_App {
                         List<LPoint> data = Helper.GetLaserData(X, Z, true);
 
 
-                        data = Calculate.Laser.Filters.AveragingVerticalPro(data);
-
+                        //data = Calculate.Laser.Filters.AveragingVerticalPro(data, _everyPoint:true, _pointsInStep: 6);
+                        
 
                         LV.SetData(data);
-                        List<LPoint> points = Calculate.Laser.AngularSeam.FindMasPoint_ZX_Diff(data, 2);
-                        if (points.Count > 1) {
+                        List<LPoint> points = Calculate.Laser.AngularSeam.FindMasPoint_Z_Diff(data, 2);
+                        if (points.Count >= 1) {
                             LPoint resultP = new LPoint() {
-                                X = (points[0].X + points[1].X) / 2,
-                                Z = (points[0].Z + points[1].Z) / 2,
+                                //X = (points[0].X + points[1].X) / 2,
+                                //Z = (points[0].Z + points[1].Z) / 2,
+                                X = points[0].X ,
+                                Z = points[0].Z,
                             };
-                            LV.SetPoint(resultP);
+                            LV.SetPoint(resultP);                       
                             if (single.Position.X != Double.MinValue) {
                                 RPoint findPoint = _Cor.Trans(single.Position, resultP);
-                                map.AddLaserPoint(findPoint);
-                                single._MAP.Add(findPoint);
+                                if (single._MAP.Count != 0) {
+                                    if ((Math.Abs(findPoint.Y - single._MAP[single._MAP.Count - 1].Y) < 3) && (Math.Abs(findPoint.Z - single._MAP[single._MAP.Count - 1].Z) < 3)) {
+                                        map.AddLaserPoint(findPoint);
+                                        single._MAP.Add(findPoint);                                       
+                                    }
+                                } else {
+                                    map.AddLaserPoint(findPoint);
+                                    single._MAP.Add(findPoint);
+                                }
+                                map.AddRobotPoint(single.Position);
+                                map.UsredLaser();
                             }
                         }
                     });
@@ -136,6 +150,11 @@ namespace WPF_Interface_App {
             {
                 Random rnd = new Random();
                 Laser.Init();
+
+                double tx = 5;
+                double ty = 5;
+                double tz = 5;
+
                 while (true) {
                     Dispatcher.Invoke(() => {
                         Laser.GetProfile(out double[] X, out double[] Z);
@@ -146,18 +165,122 @@ namespace WPF_Interface_App {
 
 
                         LV.SetData(data);
-                        List<LPoint> points = Calculate.Laser.AngularSeam.FindMasPoint_ZX_Diff(data, 2);
-                        RPoint findPoint = new RPoint(rnd.Next(1, 1000), rnd.Next(1, 1000), rnd.Next(1, 1000));
+
+                        //List<LPoint> points = Calculate.Laser.AngularSeam.FindAngularSeamByRegions(data);
+                        //LV.SetPoints(points);
+
+                        LPoint point = Calculate.Laser.AngularSeam.FindAngularSeamSimple(data);
+                        LV.SetPoint(point);
+
+                        //RPoint findPoint = new RPoint(rnd.Next(1, 10), rnd.Next(1, 10), rnd.Next(1, 10));
+                        RPoint findPoint = new RPoint(tx = single.Position.X + 100, ty += rnd.NextDouble() - 0.5 , tz += rnd.NextDouble() - 0.5);
                         map.AddLaserPoint(findPoint);
                         single._MAP.Add(findPoint);
                         map.AddRobotPoint(single.Position);
+                        map.UsredLaser();
+
+                    });
+                    Thread.Sleep(36);
+                }
+            } */
+            #endregion
+
+            #region Laser Start Testing Types
+            Thread laser_thrd = new Thread(new ThreadStart(LaserThread));
+            laser_thrd.Start();
+            void LaserThread()
+            {
+                Random rnd = new Random();
+                Laser.Init();
+                while (true) {
+                    Dispatcher.Invoke(() => {
+                        Laser.GetProfile(out double[] X, out double[] Z);
+                        List<LPoint> data = Helper.GetLaserData(X, Z, true);
+
+
+                        int vstep = 2;
+                        int hstep = 100;
+                        int pointsCount = 6;
+                        if (cb_filter.IsChecked == true) {
+                            if (!tb_hstep.IsFocused) {
+                                hstep = Convert.ToInt32(tb_hstep.Text);
+                            }
+                            if (!tb_vstep.IsFocused) {
+                                vstep = Convert.ToInt32(tb_vstep.Text);
+                            }
+                            if (!tb_points.IsFocused) {
+                                pointsCount = Convert.ToInt32(tb_points.Text);
+                            }
+                            bool evrP = (bool)cb_everyPoint.IsChecked;
+
+                            data = Calculate.Laser.Filters.AveragingVerticalPro(data,vstep,hstep,pointsCount,evrP);
+                        }
+
+
+                        
+
+
+                        LV.SetData(data);
+                        Stopwatch s1 = new Stopwatch();
+                        s1.Start();
+
+                        if (rb_t1.IsChecked == true) {
+                            LPoint res = Calculate.Laser.Voronej.Type1_1point(data);
+                            LV.SetPoint(res);
+                        } else if (rb_t2.IsChecked == true) {
+                            (LPoint left, LPoint right) = Calculate.Laser.Voronej.Type3_2point(data);
+                            LV.SetPoints(new List<LPoint>() {
+                                left, right
+                            });
+                        } else {
+                            LPoint res = Calculate.Laser.Voronej.Type3_1point(data);
+                            LV.SetPoint(res);
+                        }
+
+                        s1.Stop();
+                        //Console.WriteLine(s1.ElapsedMilliseconds);
+                    });
+                    Thread.Sleep(36);
+                }
+            }
+            void LaserThread2()
+            {
+                Random rnd = new Random();
+                Laser.Init();
+
+                double tx = 5;
+                double ty = 5;
+                double tz = 5;
+
+                while (true) {
+                    Dispatcher.Invoke(() => {
+                        Laser.GetProfile(out double[] X, out double[] Z);
+                        List<LPoint> data = Helper.GetLaserData(X, Z, true);
+
+
+                        data = Calculate.Laser.Filters.AveragingVerticalPro(data);
+
+
+                        LV.SetData(data);
+
+                        //List<LPoint> points = Calculate.Laser.AngularSeam.FindAngularSeamByRegions(data);
+                        //LV.SetPoints(points);
+
+                        LPoint point = Calculate.Laser.AngularSeam.FindAngularSeamSimple(data);
+                        LV.SetPoint(point);
+
+                        //RPoint findPoint = new RPoint(rnd.Next(1, 10), rnd.Next(1, 10), rnd.Next(1, 10));
+                        RPoint findPoint = new RPoint(tx = single.Position.X + 100, ty += rnd.NextDouble() - 0.5, tz += rnd.NextDouble() - 0.5);
+                        map.AddLaserPoint(findPoint);
+                        single._MAP.Add(findPoint);
+                        map.AddRobotPoint(single.Position);
+                        map.UsredLaser();
+
                     });
                     Thread.Sleep(36);
                 }
             }
             #endregion
-
-
 
         }
 
@@ -278,5 +401,11 @@ namespace WPF_Interface_App {
         }
         */
         #endregion
+
+        private void Button_Click(object sender, RoutedEventArgs e) {
+            _R.exit = true;
+            Thread.Sleep(36);
+            _R.Stoplistening();
+        }
     }
 }

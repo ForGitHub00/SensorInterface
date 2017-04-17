@@ -11,12 +11,34 @@ namespace HelperControls {
         public static class Laser {
             // Угловой шов
             public static class AngularSeam {
-                public static LPoint FindOnePoint(List<LPoint> data) {
+                public static List<LPoint> FindAngularSeamByRegions(List<LPoint> data, int countOfRegions = 10) {
                     LPoint result = new LPoint() { X = 0, Z = 0 };
+                    List<LPoint> tempResult = new List<LPoint>();
 
+                    int pointsInRegion = data.Count / countOfRegions;
+                    for (int t = 0; t < countOfRegions; t++) {
+                        double min = Double.MaxValue;
+                        LPoint tempPoint = new LPoint();
+                        for (int i = t * pointsInRegion; i < (t + 1) * pointsInRegion; i++) {
+                            if (data[i].Z < min) {
+                                min = data[i].Z;
+                                tempPoint = data[i];
+                            }
+                        }
+                        tempResult.Add(tempPoint);
+                    }
+                    result = tempResult[5];
 
+                    return tempResult;
+                }
+
+                public static LPoint FindAngularSeamSimple(List<LPoint> data) {
+                    LPoint result = new LPoint() { X = 0, Z = 0 };
+                    if (data.Count != 0) {
+                        result = data.OrderBy(item => item.Z).ToList()[0];
+                    }
                     return result;
-                }               
+                }
                 public static List<LPoint> FindMasPoint_ZX_Diff(List<LPoint> data, int count) {
                     //поиск по каждой соседней точке, по отношению dz к dx
                     Dictionary<int, double> diffs = new Dictionary<int, double>();
@@ -49,6 +71,32 @@ namespace HelperControls {
                     LPoint Rres = new LPoint() { X = 0, Z = 0 };
                     //TODO
                     return (Lres, Rres);
+                }
+                public static List<LPoint> FindMasPoint_Z_Diff(List<LPoint> data, int count) {
+                    Dictionary<int, double> diffs = new Dictionary<int, double>();
+                    for (int i = 0; i < data.Count - 1; i++) {
+                        diffs.Add(i, Math.Abs(data[i].Z - data[i + 1].Z));
+                    }
+
+                    //int count = (int)(data.Count * percent);
+                    var tempResult = diffs.OrderByDescending(pair => pair.Value).Take(count).ToDictionary(pair => pair.Key, pair => pair.Value);
+
+                    List<LPoint> result = new List<LPoint>();
+                    foreach (var item in tempResult) {
+                        if (data[item.Key + 1].Z > data[item.Key].Z) {
+                            result.Add(data[item.Key + 1]);
+                        } else {
+                            result.Add(data[item.Key]);
+                        }
+                    }
+                    return result;
+
+                    double calculate_ratio(LPoint p1, LPoint p2)
+                    {
+                        double xDiff = Math.Abs(p1.X - p2.X);
+                        double zDiff = Math.Abs(p1.Z - p2.Z);
+                        return zDiff / xDiff;
+                    }
                 }
             }
             // Стыковое соединение
@@ -142,6 +190,65 @@ namespace HelperControls {
                         return zRes;
                     }
 
+                }
+            }
+            public static class Voronej {
+                public static LPoint Type1_1point(List<LPoint> data, double lifting = 0) {
+                    LPoint result = new LPoint() { X = 0, Z = 0 };
+                    if (data.Count != 0) {
+                        result = data.OrderBy(item => item.Z).ToList()[0];
+                    }
+                    return new LPoint(result.X, result.Z + lifting);
+                }
+
+                public static (LPoint left, LPoint right) Type3_2point(List<LPoint> data) {
+                    LPoint left = new LPoint(0, 0), right = new LPoint(0, 0);
+                    Dictionary<int, double> diffs = new Dictionary<int, double>();
+                    for (int i = 0; i < data.Count - 1; i++) {
+                        diffs.Add(i, calculate_ratio(data[i], data[i + 1]));
+                    }
+
+                    //int count = (int)(data.Count * percent);
+                    var tempResult = diffs.OrderByDescending(pair => pair.Value).Take(2).ToDictionary(pair => pair.Key, pair => pair.Value);
+
+                    List<LPoint> result = new List<LPoint>();
+                    foreach (var item in tempResult) {
+                        if (data[item.Key + 1].Z > data[item.Key].Z) {
+                            result.Add(data[item.Key + 1]);
+                        } else {
+                            result.Add(data[item.Key]);
+                        }
+                    }
+
+                    if (tempResult.Count > 1) {
+                        if (result[0].X < result[1].X) {
+                            left = result[0];
+                            right = result[1];
+                        } else {
+                            left = result[1];
+                            right = result[0];
+                        }
+                    }
+
+                   
+
+                    return (left, right);
+
+                    double calculate_ratio(LPoint p1, LPoint p2)
+                    {
+                        double xDiff = Math.Abs(p1.X - p2.X);
+                        double zDiff = Math.Abs(p1.Z - p2.Z);
+                        return zDiff / xDiff;
+                    }
+
+
+                }
+
+                public static LPoint Type3_1point(List<LPoint> data, double decrease = 0) {
+                    LPoint left = new LPoint(0, 0), right = new LPoint(0, 0);
+                    (left, right) = Type3_2point(data);
+
+                    return new LPoint((left.X + right.X) / 2, (left.Z + right.Z) / 2 - decrease);
                 }
             }
         }

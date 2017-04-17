@@ -80,6 +80,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="3d_viever.xaml.cs">
+      <DependentUpon>3d_viever.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Saver.cs" />
+    <Page Include="3d_viever.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

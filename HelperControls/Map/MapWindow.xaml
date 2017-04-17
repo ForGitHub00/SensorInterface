@@ -19,8 +19,9 @@
                 <oxy:LinearAxis Title="Z" Position="Left"/>
             </oxy:Plot.Axes>
             <oxy:Plot.Series>
-                <oxy:LineSeries  ItemsSource="{Binding RDataXZ}"/>
+               
                 <oxy:LineSeries  ItemsSource="{Binding LDataXZ}"/>
+                <oxy:LineSeries  ItemsSource="{Binding RDataXZ}"/>
             </oxy:Plot.Series>
 
         </oxy:Plot>
@@ -30,8 +31,9 @@
                 <oxy:LinearAxis Title="Y" Position="Left"/>
             </oxy:Plot.Axes>
             <oxy:Plot.Series>
-                <oxy:LineSeries  ItemsSource="{Binding RDataXY}"/>
+  
                 <oxy:LineSeries  ItemsSource="{Binding LDataXY}"/>
+                <oxy:LineSeries  ItemsSource="{Binding RDataXY}"/>
             </oxy:Plot.Series>
         </oxy:Plot>
         <oxy:Plot Grid.Row="2" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">

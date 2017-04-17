@@ -53,10 +53,32 @@ namespace HelperControls {
             tempData = Calculate.Laser.Filters.SortByX(tempData);
             tempData = Calculate.Laser.Filters.AveragingVerticalPro(tempData);
 
+           
+
+
+            List<LPoint> tempData2 = new List<LPoint>();
+            foreach (var item in LDataXZ) {
+                tempData2.Add(new LPoint() { X = item.X, Z = item.Y });
+            }
+            tempData2 = Calculate.Laser.Filters.SortByX(tempData2);
+            tempData2 = Calculate.Laser.Filters.AveragingVerticalPro(tempData2);
+
+
             LDataXY = new ObservableCollection<DataPoint>();
+            LDataXZ = new ObservableCollection<DataPoint>();
+
+
+            int i = 0;
+            List<RPoint> tempmas = new List<RPoint>();
             foreach (var item in tempData) {
                 LDataXY.Add(new DataPoint(item.X, item.Z));
+                LDataXZ.Add(new DataPoint(tempData2[i].X, tempData2[i].Z));
+                RPoint t = new RPoint(item.X, item.Z, tempData2[i].Z, single._MAP[i].A, single._MAP[i].B, single._MAP[i].C);
+                tempmas.Add(t);
+                i++;
             }
+            single._MAP = tempmas;
+
         }
 
         public ObservableCollection<DataPoint> RDataXZ {

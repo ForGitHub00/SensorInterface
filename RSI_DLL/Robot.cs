@@ -1,6 +1,7 @@
 ﻿using HelperControls;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -18,49 +19,80 @@ namespace RSI_DLL {
         public Singleton single;
         private double speed;
         private double _oneCor;
+        private bool first = true;
+        public bool exit = false;
+
+        double RX = 0;
+        double RY = 0;
+        double RZ = 0;
+        double RA = 0;
+        double RB = 0;
+        double RC = 0;
+
 
         int prevIndex = 0;
         private string _defaultDelegate(string strRecive, string strSend) {
-            double RX = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "X" });
-            double RY = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "Y" });
-            double RZ = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "Z" });
-            double RA = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "A" });
-            double RB = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "B" });
-            double RC = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "C" });
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            if (first) {
+                RX = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "X" }) +200;
+                RY = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "Y" });
+                RZ = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "Z" });
+                RA = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "A" });
+                RB = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "B" });
+                RC = ParserXML.GetValues(strRecive, new string[] { "Rob", "RIst", "C" });
+            }
+           
 
             single.Position = new RPoint(RX, RY, RZ, RA, RB, RC);
 
+
             if (single._MAP.Count != 0) {
+                if (RX >= 9.5245 +200) {
+                    first = false;
+                }
                 int index = prevIndex;
                 while (index < single._MAP.Count && RX > single._MAP[index].X) {
                     index++;
                 }
                 prevIndex = index;
                 if (index < single._MAP.Count) {
-                    double sum = Math.Abs(single._MAP[index].X - RX) + Math.Abs(single._MAP[index].Y - RY) + Math.Abs(single._MAP[index].Z - RZ);
-                    double xProc = (single._MAP[index].X - RX) / sum;
-                    double yProc = (single._MAP[index].Y - RY) / sum;
-                    double zProc = (single._MAP[index].Z - RZ) / sum;
+                    if (!first) {
+                        double sum = Math.Abs(single._MAP[index].X - RX) + Math.Abs(single._MAP[index].Y - RY) + Math.Abs(single._MAP[index].Z - RZ);
+                        double xProc = (single._MAP[index].X - RX) / sum;
+                        double yProc = (single._MAP[index].Y - RY) / sum;
+                        double zProc = (single._MAP[index].Z - RZ) / sum;
 
 
-                    Console.WriteLine(xProc);
+                        //Console.WriteLine(xProc);
 
 
-                    ParserXML.SetValue(ref strSend, "Sen\\RKorr\\X", xProc * _oneCor);
-                    ParserXML.SetValue(ref strSend, "Sen\\RKorr\\Y", yProc * _oneCor);
-                    ParserXML.SetValue(ref strSend, "Sen\\RKorr\\Z", zProc * _oneCor);
-
+                        ParserXML.SetValue(ref strSend, "Sen\\RKorr\\X", xProc * _oneCor);
+                        ParserXML.SetValue(ref strSend, "Sen\\RKorr\\Y", yProc * _oneCor);
+                        ParserXML.SetValue(ref strSend, "Sen\\RKorr\\Z", zProc * _oneCor);
+                        RX += xProc * _oneCor;
+                        RY += yProc * _oneCor;
+                        RZ += zProc * _oneCor;
+                    }
                 } else {
-                    ParserXML.SetValue(ref strSend, "Sen\\RKorr\\X", _oneCor);
+                    //ParserXML.SetValue(ref strSend, "Sen\\RKorr\\X", _oneCor);
+                    //RX +=  _oneCor;e
+                    exit = true;
                 }
             }
-           
+            if (exit) {
+                ParserXML.SetValue(ref strSend, "Sen\\Exit", 1);
+            }
+            sw.Stop();
+            // Console.WriteLine(sw.ElapsedMilliseconds);
             return strSend;
         }
         public Robot(int port) {
             _port = port;
             Correction = _defaultDelegate;
-            speed = 0.01;
+            speed = 12;
             _oneCor = speed * 0.012;
         }
         public Robot(int port, CorrectionDelegate dlgt) {
@@ -68,7 +100,7 @@ namespace RSI_DLL {
             Correction = dlgt;
         }
 
-   
+
 
         public void StartListening() {
             work = true;
@@ -106,11 +138,11 @@ namespace RSI_DLL {
                         string strSend;
                         strSend = SendXML.InnerXml;
 
-                        // strSend = mirrorIPOC(strReceive, strSend);
+                        strSend = mirrorIPOC(strReceive, strSend);
                         strSend = Correction(strReceive, strSend);
 
                         byte[] msg = System.Text.Encoding.ASCII.GetBytes(strSend);
-                        // server.Send(msg, msg.Length, client);
+                        server.Send(msg, msg.Length, client);
                     }
 
                     strReceive = null;

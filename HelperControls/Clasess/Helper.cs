@@ -89,5 +89,8 @@ namespace HelperControls {
             B = b;
             C = c;
         }
+        public override string ToString() {
+            return $"X = {X} | Y = {Y} | Z = {Z} | A = {A} | B = {B} | C = {C} | ";
+        }
     }
 }
