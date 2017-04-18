@@ -15,19 +15,14 @@ using System.Windows.Shapes;
 
 namespace WPF_Interface_App {
     /// <summary>
-    /// Логика взаимодействия для _3d_viever.xaml
+    /// Логика взаимодействия для d3_win.xaml
     /// </summary>
-    public partial class _3d_viever : Window {
-        public _3d_viever() {
+    public partial class d3_win : Window {
+        public d3_win() {
             InitializeComponent();
-            Loaded += _3d_viever_Loaded;
         }
-
-        private void _3d_viever_Loaded(object sender, RoutedEventArgs e) {
-            throw new NotImplementedException();
-        }
-        public void AddPoint(RPoint point) {
-
+        public void AddPoint(RPoint point, int index = 0) {
+            d3.AddPoint(point.X, point.Y, point.Z, index);
         }
     }
 }

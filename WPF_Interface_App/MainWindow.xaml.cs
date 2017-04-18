@@ -29,7 +29,15 @@ namespace WPF_Interface_App {
             Start2();
 
 
-            
+            d3 = new d3_win();
+            d3.Show();
+
+
+            //for (int i = 0; i < 50; i++) {
+            //    d3.d3.AddPoint(i, i, i);
+            //}
+
+
             // StartWork();
             #region
 
@@ -87,6 +95,7 @@ namespace WPF_Interface_App {
         Correction _Cor;
         Robot _R;
         Singleton single;
+        d3_win d3;
         #endregion
 
         public void Start2() {
@@ -192,6 +201,73 @@ namespace WPF_Interface_App {
             {
                 Random rnd = new Random();
                 Laser.Init();
+                int tx = 0;
+                List<RPoint> line1 = new List<RPoint>();
+                List<RPoint> line2 = new List<RPoint>();
+
+                Dispatcher.Invoke(() => {
+
+
+
+                    for (int i = 100; i <= 1000; i++) {
+                        line1.Add(new RPoint(i + (rnd.NextDouble() - 0.5) * 10, rnd.Next(50, 300) + i / 3, rnd.Next(50, 100)));
+                        //line1.Add(new RPoint(rnd.Next(50, 1000), rnd.Next(50, 1000), rnd.Next(50, 1000)));
+                        //line1.Add(new RPoint(i, 50 + (rnd.NextDouble() - 0.5) * 10, 50 + (rnd.NextDouble() - 0.5) * 10));
+                        // line1.Add(new RPoint(i, 50 , 50));
+                    }
+                    //line1.Add(new RPoint(0, 0, 0));
+                    //line1.Add(new RPoint(0, 100, 0));
+                    //line1.Add(new RPoint(0, 200, 40));
+                    //line1.Add(new RPoint(0, 300, 0));
+
+                    foreach (var item in line1) {
+                        d3.AddPoint(item);
+                    }
+
+                    int typ = Calculate.Robot.LineType(line1);
+                    var line1t = Calculate.Robot.LineApprox(line1, typ);
+
+                    foreach (var item in line1t) {
+                        d3.AddPoint(item, 1);
+                    }
+
+
+
+
+                    line2 = new List<RPoint>();
+
+                    for (int i = 200; i < 1000; i++) {
+                        line2.Add(new RPoint(rnd.Next(50, 100), i + (rnd.NextDouble() - 0.5) * 10, rnd.Next(50, 150)));
+                        //line2.Add(new RPoint(rnd.Next(50, 1000), rnd.Next(50, 1000), rnd.Next(50, 1000)));
+                        //line2.Add(new RPoint(50 + (rnd.NextDouble() - 0.3) * 10, i + rnd.Next(0,5), 50 + (rnd.NextDouble() - 0.5) * 10));
+                        //line2.Add(new RPoint(50 , i , 50 ));
+                    }
+                    foreach (var item in line2) {
+                        d3.AddPoint(item);
+                    }
+
+                    int typ2 = Calculate.Robot.LineType(line2);
+                    var line2t = Calculate.Robot.LineApprox(line2, typ2);
+
+                    foreach (var item in line2t) {
+                        d3.AddPoint(item, 1);
+                    }
+
+                    d3.AddPoint(Calculate.Robot.CalculatePoint_2line(line1, line2), 2);
+
+
+
+                });
+
+                
+
+
+
+
+
+
+
+
                 while (true) {
                     Dispatcher.Invoke(() => {
                         Laser.GetProfile(out double[] X, out double[] Z);
@@ -213,11 +289,24 @@ namespace WPF_Interface_App {
                             }
                             bool evrP = (bool)cb_everyPoint.IsChecked;
 
-                            data = Calculate.Laser.Filters.AveragingVerticalPro(data,vstep,hstep,pointsCount,evrP);
+                            data = Calculate.Laser.Filters.AveragingVerticalPro(data, vstep, hstep, pointsCount, evrP);
                         }
 
 
-                        
+
+
+                       
+
+
+
+                        //for (int i = 0; i < 10; i++) {
+                        //   d3.AddPoint(new RPoint(tx, rnd.Next(0,1000), rnd.Next(0, 1000)));
+                        //   d3.AddPoint(new RPoint(tx, rnd.Next(0, 1000) + 100, rnd.Next(0, 1000)), index: 1);
+                        //   d3.AddPoint(new RPoint(tx, rnd.Next(0, 1000), rnd.Next(0, 1000)), index: 2);
+                        //}
+                        //tx++;
+
+
 
 
                         LV.SetData(data);
@@ -227,6 +316,40 @@ namespace WPF_Interface_App {
                         if (rb_t1.IsChecked == true) {
                             LPoint res = Calculate.Laser.Voronej.Type1_1point(data);
                             LV.SetPoint(res);
+                            //d3.AddPoint(HelperControls.Transform.Trans(tx,0,0,0,0,0, 0, res.X,res.Z));
+                            if (res.X != 0) {
+                                RPoint findPoint = _Cor.Trans(new RPoint(tx, 0, 0, 0, 0, 0), res);
+                                map.AddLaserPoint(findPoint);
+                                single._MAP.Add(findPoint);
+
+                                //if (tx < 500) {
+                                //    d3.AddPoint(HelperControls.Transform.Trans(tx + 100, 0, 0, 0, 0, 0, 0, res.X, res.Z));
+                                //    line1.Add(HelperControls.Transform.Trans(tx + 100, 0, 0, 0, 0, 0, 0, res.X, res.Z));
+                                //} else if (tx < 1000) {
+                                //    d3.AddPoint(HelperControls.Transform.Trans(50, 0, tx, 0, 0, 0, 0, res.X, res.Z));
+                                //    line2.Add(HelperControls.Transform.Trans(50, 0, tx, 0, 0, 0, 0, res.X, res.Z));
+                                //} else if (tx == 1000){
+
+                                //    int typ = Calculate.Robot.LineType(line1);
+                                //    var line1t = Calculate.Robot.LineApprox(line1, typ);
+                                //    foreach (var item in line1t) {
+                                //        d3.AddPoint(item, 1);
+                                //    }
+                                //    int typ2 = Calculate.Robot.LineType(line2);
+                                //    var line2t = Calculate.Robot.LineApprox(line2, typ2);
+
+                                //    foreach (var item in line2t) {
+                                //        d3.AddPoint(item, 1);
+                                //    }
+
+                                //    d3.AddPoint(Calculate.Robot.CalculatePoint_2line(line1, line2), 2);
+
+                                //}
+                                //Console.WriteLine($"TX = {tx}");
+                                //tx+=10;
+                            }
+                            map.UsredLaser();
+
                         } else if (rb_t2.IsChecked == true) {
                             (LPoint left, LPoint right) = Calculate.Laser.Voronej.Type3_2point(data);
                             LV.SetPoints(new List<LPoint>() {

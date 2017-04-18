@@ -20,9 +20,9 @@ namespace HelperControls {
             Map = new List<RPoint>();
             Speed = speed;
             _oneCor = Speed * 0.012;
-            CalibX = 124.09;
-            CalibY = -5;
-            CalibZ = 354; //2.73
+            CalibX = 0;
+            CalibY = 0;
+            CalibZ = 150; //2.73
             single = Singleton.GetInstance();
         }
         public Correction(double speed, double x, double y, double z) {
@@ -47,7 +47,8 @@ namespace HelperControls {
             Map.Add(p);
         }
         public RPoint Trans(RPoint robP, LPoint lasP) {
-            RPoint res = Transform.Trans(robP.X, robP.Y, robP.Z, 0, 0, 0, CalibX, -CalibY + lasP.X, -(CalibZ - lasP.Z)); //todo CalibY + X ???
+            RPoint res = Transform.Trans(robP.X, robP.Y, robP.Z, robP.A, robP.B, robP.C, CalibX, -CalibY + lasP.X, -(CalibZ - lasP.Z)); //todo CalibY + X ???
+            //RPoint res = Transform.Trans(robP.X, robP.Y, robP.Z, 0, 0, 0, CalibX, -CalibY + lasP.X, -(CalibZ - lasP.Z)); //todo CalibY + X ???
             Map.Add(res);
             return res;
         }
